@@ -1,11 +1,30 @@
 {
   "name": "indexed-pdb",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Promised based IndexedDB Wrapper",
   "main": "lib/main.js",
   "typings": "lib/main.d.ts",
   "author": "prasenjeet-symon",
   "license": "MIT",
   "dependencies": {},
-  "keywords": ["Promise", "IndexedDB", "Database"]
+  "keywords": [
+    "Promise",
+    "IndexedDB",
+    "Database"
+  ],
+  "bugs": {
+    "url": "https://github.com/prasenjeet-symon/indexed-pdb/issues"
+  },
+  "deprecated": false,
+  "files": [
+    "lib/**"
+  ],
+  "homepage": "https://github.com/prasenjeet-symon/indexed-pdb#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prasenjeet-symon/indexed-pdb.git"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.2"
+  }
 }
