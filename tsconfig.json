@@ -1,23 +1,25 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "./lib",
-    "sourceMap": true,
     "declaration": true,
+    "declarationDir": "./dist",
+    "module": "es6",
+    "noImplicitAny": true,
+    "outDir": "./dist",
+    "target": "es5",
     "declarationMap": true,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "es2015",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
+    "sourceMap": true,
     "lib": [
       "es2018",
       "dom",
     ]
-  }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
 }
