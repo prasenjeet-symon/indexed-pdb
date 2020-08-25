@@ -1,14 +1,11 @@
 {
   "name": "indexed-pdb",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Promised based IndexedDB Wrapper",
   "main": "lib/main.js",
-  "types": "lib",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "typings": "lib/main.d.ts",
   "author": "prasenjeet-symon",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {},
   "keywords": ["Promise", "IndexedDB", "Database"]
 }
