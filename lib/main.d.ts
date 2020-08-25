@@ -1,3 +1,57 @@
+declare type ArrayBufferLike = ArrayBufferTypes[keyof ArrayBufferTypes];
+interface ArrayBufferView {
+    /**
+     * The ArrayBuffer instance referenced by the array.
+     */
+    buffer: ArrayBufferLike;
+    /**
+     * The length in bytes of the array.
+     */
+    byteLength: number;
+    /**
+     * The offset in bytes of the array.
+     */
+    byteOffset: number;
+}
+/** A key range can be a single value or a range with upper and lower bounds or endpoints. If the key range has both upper and lower bounds, then it is bounded; if it has no bounds, it is unbounded. A bounded key range can either be open (the endpoints are excluded) or closed (the endpoints are included). To retrieve all keys within a certain range, you can use the following code constructs: */
+interface IDBKeyRange {
+    /**
+     * Returns lower bound, or undefined if none.
+     */
+    readonly lower: any;
+    /**
+     * Returns true if the lower open flag is set, and false otherwise.
+     */
+    readonly lowerOpen: boolean;
+    /**
+     * Returns upper bound, or undefined if none.
+     */
+    readonly upper: any;
+    /**
+     * Returns true if the upper open flag is set, and false otherwise.
+     */
+    readonly upperOpen: boolean;
+    /**
+     * Returns true if key is included in the range, and false otherwise.
+     */
+    includes(key: any): boolean;
+}
+/** A type returned by some APIs which contains a list of DOMString (strings). */
+interface DOMStringList {
+    /**
+     * Returns the number of strings in strings.
+     */
+    readonly length: number;
+    /**
+     * Returns true if strings contains string, and false otherwise.
+     */
+    contains(string: string): boolean;
+    /**
+     * Returns the string with index index from strings.
+     */
+    item(index: number): string | null;
+    [index: number]: string;
+}
 declare class IDBTransactionWrapper {
     private IDBTransaction;
     /** Returns the transaction's connection. */
@@ -47,7 +101,7 @@ declare class IDBIndexWrapper {
      * Retrieves the key of the first record matching the given key or key range in query.
      * If successful, request's result will be the key, or undefined if there was no matching record.
     */
-    getKey(key: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange): Promise<IDBValidKey>;
+    getKey(key: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange): Promise<string | number | Date | ArrayBuffer | IDBArrayKey | ArrayBufferView>;
     /**
      * Retrieves the values of the records matching the given key or key range in query (up to count if given).
      *
@@ -126,7 +180,7 @@ declare class IDBObjectStoreWrapper {
     /** Retrieves the key of the first record matching the given key or key range in query.
      *
      * If successful, request's result will be the key, or undefined if there was no matching record. */
-    getKey(query: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange): Promise<IDBValidKey>;
+    getKey(query: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange): Promise<string | number | Date | ArrayBuffer | IDBArrayKey | ArrayBufferView>;
     /** Retrieves the values of the records matching the given key or key range in query (up to count if given).
      *
      * If successful, request's result will be an Array of the values. */
