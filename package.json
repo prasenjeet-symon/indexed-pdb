@@ -1,6 +1,6 @@
 {
   "name": "indexed-pdb",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A light-weight Promised based IndexedDB Wrapper",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
