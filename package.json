@@ -8,7 +8,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -cw"
+    "watch": "rollup -cw",
+    "test": "echo \"No test specified\""
   },
   "author": "prasenjeet-symon",
   "license": "MIT",
