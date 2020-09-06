@@ -17,7 +17,7 @@ import {
 
 function isIndexDbSupported() {
     if (!window.indexedDB) {
-        console.log("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
+        console.log("Your browser doesn't support a stable version of IndexedDB. some of the features will not be available.");
         return false
     } else {
         console.log('supported IndexedDb')
@@ -30,7 +30,6 @@ function is_number_float(data: number) {
     if (found_period) {
         // posibility of the floating number
         return true
-
     } else {
         // check if the given number is number
         return isNaN(Number(data))
@@ -216,15 +215,14 @@ class IDBIndexWrapper {
      */
     public openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection) {
         const request = this.IDBIndex.openCursor(query, direction)
-        return new Promise<IDBCursorWithValue | null>((resolve, reject) => {
+        return new Promise<IDBCursorWithValueWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
                 err.preventDefault()
                 err.stopPropagation()
                 reject(`${err} - Error while opening cursor on indexed object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
-                // todo make the IDBCursorWithValue wrapper
-                resolve(event.target.result as IDBCursorWithValue | null)
+                resolve(new IDBCursorWithValueWrapper(event.target.result))
             }
         })
     }
@@ -234,14 +232,14 @@ class IDBIndexWrapper {
      * If successful, request's result will be an IDBCursor, or null if there were no matching records. */
     public openKeyCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection) {
         const request = this.IDBIndex.openKeyCursor(query, direction)
-        return new Promise<IDBCursor | null>((resolve, reject) => {
+        return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
                 err.preventDefault()
                 err.stopPropagation()
                 reject(`${err} - Error while opening key cursor on indexed object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
-                resolve(event.target.result as IDBCursor | null)
+                resolve(new IDBCursorWrapper(event.target.result))
             }
         })
     }
@@ -458,7 +456,7 @@ class IDBObjectStoreWrapper {
      * If successful, request's result will be an IDBCursorWithValue pointing at the first matching record, or null if there were no matching records. */
     public openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection) {
         const request = this.IDBObjectStore.openCursor(query, direction)
-        return new Promise<IDBCursorWithValue | null>((resolve, reject) => {
+        return new Promise<IDBCursorWithValueWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
                 err.preventDefault()
                 err.stopPropagation()
@@ -466,7 +464,7 @@ class IDBObjectStoreWrapper {
             }
 
             request.onsuccess = (event: any) => {
-                resolve(event.target.result)
+                resolve(new IDBCursorWithValueWrapper(event.target.result))
             }
         })
     }
@@ -478,7 +476,7 @@ class IDBObjectStoreWrapper {
      * If successful, request's result will be an IDBCursor pointing at the first matching record, or null if there were no matching records. */
     public openKeyCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection) {
         const request = this.IDBObjectStore.openKeyCursor(query, direction)
-        return new Promise<IDBCursor | null>((resolve, reject) => {
+        return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
                 err.preventDefault()
                 err.stopPropagation()
@@ -486,7 +484,7 @@ class IDBObjectStoreWrapper {
             }
 
             request.onsuccess = (event: any) => {
-                resolve(event.target.result)
+                resolve(new IDBCursorWrapper(event.target.result))
             }
         })
     }
@@ -592,3 +590,116 @@ export function openDB(database_name: string, version: number, upgradeCallback?:
         }
     })
 }
+
+
+class IDBCursorWrapper {
+    /**
+     * Returns the direction ("next", "nextunique", "prev" or "prevunique") of the cursor.
+     */
+    readonly direction: IDBCursorDirection;
+    /**
+     * Returns the key of the cursor. Throws a "InvalidStateError" DOMException if the cursor is advancing or is finished.
+     */
+    readonly key: IDBValidKey;
+    /**
+     * Returns the effective key of the cursor. Throws a "InvalidStateError" DOMException if the cursor is advancing or is finished.
+     */
+    readonly primaryKey: IDBValidKey;
+    /**
+     * Returns the IDBObjectStore or IDBIndex the cursor was opened from.
+     */
+    readonly source: IDBObjectStore | IDBIndex;
+
+    constructor(private IDBCursor: IDBCursor) {
+        this.direction = this.IDBCursor.direction
+        this.key = this.IDBCursor.key
+        this.primaryKey = this.IDBCursor.primaryKey
+        this.source = this.IDBCursor.source
+    }
+
+    /**
+     * Advances the cursor through the next count records in range.
+     */
+    async advance(count: number) {
+        try {
+            this.IDBCursor.advance(count)
+            return new IDBCursorWrapper(this.IDBCursor)
+        } catch (error) {
+            return null
+        }
+    }
+
+    /**
+     * Advances the cursor to the next record in range.
+     */
+    async continue(key?: IDBValidKey) {
+        try {
+            this.IDBCursor.continue(key)
+            return new IDBCursorWrapper(this.IDBCursor)
+        } catch (error) {
+            return null
+        }
+    }
+
+    /**
+     * Advances the cursor to the next record in range matching or after key and primaryKey. Throws an "InvalidAccessError" DOMException if the source is not an index.
+     */
+    async continuePrimaryKey(key: IDBValidKey, primaryKey: IDBValidKey) {
+        try {
+            this.IDBCursor.continuePrimaryKey(key, primaryKey)
+            return new IDBCursorWrapper(this.IDBCursor)
+        } catch (error) {
+            return null
+        }
+    }
+
+    /**
+    * Delete the record pointed at by the cursor with a new value.
+    * 
+    * If successful, request's result will be undefined.
+    */
+    async delete() {
+        const request = this.IDBCursor.delete()
+        return new Promise<{ status: 'OK'; IDBCursor: IDBCursorWrapper }>((resolve, reject) => {
+            request.onsuccess = () => {
+                resolve({ status: 'OK', IDBCursor: new IDBCursorWrapper(this.IDBCursor) })
+            }
+            request.onerror = (err) => {
+                reject(`Error while deleting the row using cursor - ${err}`)
+            }
+        })
+    }
+
+    /**
+     * Updated the record pointed at by the cursor with a new value.
+     * 
+     * Throws a "DataError" DOMException if the effective object store uses in-line keys and the key would have changed.
+     * 
+     * If successful, request's result will be the record's key.
+     */
+    update(value: any) {
+        const request = this.IDBCursor.update(value)
+        return new Promise<{ IDBValidKey: any, IDBCursor: IDBCursorWrapper }>((resolve, reject) => {
+            request.onsuccess = (result: any) => {
+                resolve({ IDBValidKey: result.target.result, IDBCursor: new IDBCursorWrapper(this.IDBCursor) })
+            }
+            request.onerror = (err) => {
+                reject(`Error while update the row using cursor - ${err}`)
+            }
+        })
+    }
+}
+
+class IDBCursorWithValueWrapper extends IDBCursorWrapper {
+    /**
+     * Returns the cursor's current value.
+     */
+    readonly value: any;
+
+    constructor(private IDBCursorWithValue: IDBCursorWithValue) {
+        super(IDBCursorWithValue)
+        this.value = this.IDBCursorWithValue.value
+    }
+
+}
+

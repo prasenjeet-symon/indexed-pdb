@@ -1,6 +1,6 @@
 # A Light-Weight Promised Based Indexed-DB Wrapper
 
-This package provide you with the ability to use the indexedDB web database with **Promise**. Which dramatically improve the code readablity as well as **callback hell** 
+This package provide you with the ability to use the indexedDB database with **Promise**. Which dramatically improve the code readablity as well as **callback hell** 
 
 ## How to use
 
@@ -8,7 +8,7 @@ This package provide you with the ability to use the indexedDB web database with
 
 `npm i --save indexed-pdb`
 
-Once installed you can import it in your working project using modern import method `import`
+Once installed you can import it in your working project using `import`
 
 ```JavaScript
 import { openDB } from 'indexed-pdb'
@@ -28,13 +28,12 @@ const database = await openDB('test_database', 1, function (upgradeDB) {
   // Access your object store ( SQL -Table) using the tnx method called as `objectStore('table name')`
   const test_object_store = tnx.objectStore('test_table')
   
-  // add new  row to the table
-  const data_to_insert = { name: 'Prasenjeet Symon' age: 14, gender: 'Male', }
+  // add new row to the table
+  const data_to_insert = { name: 'Prasenjeet Symon' age: 14, gender: 'Male'}
   const primary_key_created = await test_object_store.add(data_to_insert)
   
   // update the row in the table
-  
-  const data_to_update_with = { name: 'Prasenjeet Symon' age: 14, gender: 'Other' ,}
+  const data_to_update_with = { name: 'Prasenjeet Symon' age: 14, gender: 'Other'}
   const updated_row_primary_key = await test_object_store.put(data_to_update_with, primary_key_created)
   
   
@@ -57,6 +56,8 @@ const database = await openDB('test_database', 1, function (upgradeDB) {
 ## Typescript Config
 Make sure your typescript config contain this field
 `"importHelpers": true`
+
 `"moduleResolution": "node"`
 
-### To know more about the methods and property that you access Visit : - [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Basic_Concepts_Behind_IndexedDB)
+
+### To know more about the methods and property that you can access Visit : - [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Basic_Concepts_Behind_IndexedDB)
