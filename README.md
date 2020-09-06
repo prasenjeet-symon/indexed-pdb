@@ -54,4 +54,9 @@ const database = await openDB('test_database', 1, function (upgradeDB) {
   
 ```
 
+## Typescript Config
+Make sure your typescript config contain this field
+--"importHelpers": true
+--"moduleResolution": "node"
+
 ### To know more about the methods and property that you access Visit : - [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Basic_Concepts_Behind_IndexedDB)
