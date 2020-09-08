@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1599543763446" clover="3.2.0">
-  <project timestamp="1599543763446" name="All files">
-    <metrics statements="12" coveredstatements="1" conditionals="6" coveredconditionals="0" methods="4" coveredmethods="0" elements="22" coveredelements="1" complexity="0" loc="12" ncloc="12" packages="1" files="1" classes="1"/>
+<coverage generated="1599551024828" clover="3.2.0">
+  <project timestamp="1599551024828" name="All files">
+    <metrics statements="33" coveredstatements="1" conditionals="12" coveredconditionals="0" methods="7" coveredmethods="0" elements="52" coveredelements="1" complexity="0" loc="33" ncloc="33" packages="1" files="1" classes="1"/>
     <file name="utils.js" path="C:\Users\Prasenjeet Symon\Desktop\lib\prasenjeet-symon\indexed-pdb\src\tests\utils.js">
-      <metrics statements="12" coveredstatements="1" conditionals="6" coveredconditionals="0" methods="4" coveredmethods="0"/>
+      <metrics statements="33" coveredstatements="1" conditionals="12" coveredconditionals="0" methods="7" coveredmethods="0"/>
       <line num="2" count="0" type="stmt"/>
       <line num="6" count="0" type="stmt"/>
       <line num="7" count="0" type="stmt"/>
@@ -15,7 +15,28 @@
       <line num="16" count="0" type="stmt"/>
       <line num="19" count="0" type="stmt"/>
       <line num="22" count="0" type="stmt"/>
-      <line num="28" count="1" type="stmt"/>
+      <line num="30" count="0" type="stmt"/>
+      <line num="31" count="0" type="stmt"/>
+      <line num="32" count="0" type="stmt"/>
+      <line num="33" count="0" type="stmt"/>
+      <line num="34" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="35" count="0" type="stmt"/>
+      <line num="37" count="0" type="stmt"/>
+      <line num="43" count="0" type="stmt"/>
+      <line num="44" count="0" type="stmt"/>
+      <line num="45" count="0" type="stmt"/>
+      <line num="46" count="0" type="stmt"/>
+      <line num="47" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="48" count="0" type="stmt"/>
+      <line num="50" count="0" type="stmt"/>
+      <line num="55" count="0" type="stmt"/>
+      <line num="56" count="0" type="stmt"/>
+      <line num="57" count="0" type="stmt"/>
+      <line num="58" count="0" type="stmt"/>
+      <line num="59" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="60" count="0" type="stmt"/>
+      <line num="62" count="0" type="stmt"/>
+      <line num="67" count="1" type="stmt"/>
     </file>
   </project>
 </coverage>

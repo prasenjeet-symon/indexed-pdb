@@ -20,7 +20,6 @@ export function isIndexDbSupported() {
         console.log("Your browser doesn't support a stable version of IndexedDB. some of the features will not be available.");
         return false
     } else {
-        console.log('supported IndexedDb')
         return true
     }
 }

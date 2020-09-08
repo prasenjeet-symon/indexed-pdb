@@ -25,7 +25,49 @@ function create_new_table(database_name, table_name) {
     })
 }
 
+
+async function add_new_single_row_to_table(data, database_name, table_name) {
+    const database = await ipdb.openDB(database_name, 2)
+    const tnx = database.transaction(table_name, 'readwrite')
+    const test_object_store = tnx.objectStore(table_name)
+    const primary_key_created = await test_object_store.add(data)
+    if (primary_key_created) {
+        return primary_key_created
+    } else {
+        return false
+    }
+}
+
+
+async function read_single_row_from_table(primary_key, database_name, table_name) {
+    const database = await ipdb.openDB(database_name, 2)
+    const tnx = database.transaction(table_name, 'readwrite')
+    const test_object_store = tnx.objectStore(table_name)
+    const row_data = await test_object_store.get(+primary_key)
+    if (row_data) {
+        return row_data
+    } else {
+        return null
+    }
+}
+
+async function update_single_row_to_table(data, database_name, table_name) {
+    const database = await ipdb.openDB(database_name, 2)
+    const tnx = database.transaction(table_name, 'readwrite')
+    const test_object_store = tnx.objectStore(table_name)
+    const updated_row_primary_key = await test_object_store.put(data)
+    if (updated_row_primary_key > -1) {
+        return updated_row_primary_key
+    } else {
+        return null
+    }
+}
+
+
 module.exports = {
     connect_to_database,
-    create_new_table
+    create_new_table,
+    add_new_single_row_to_table,
+    read_single_row_from_table,
+    update_single_row_to_table
 }

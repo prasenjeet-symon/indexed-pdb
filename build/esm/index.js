@@ -71,7 +71,6 @@ function isIndexDbSupported() {
         return false;
     }
     else {
-        console.log('supported IndexedDb');
         return true;
     }
 }

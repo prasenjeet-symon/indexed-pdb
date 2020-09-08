@@ -3,5 +3,6 @@ module.exports = {
         headless: true,
         slowMo: false,
         devtools: true
-    }
+    },
+    exitOnPageError: true
 }
