@@ -1,25 +1,31 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "declaration": true,
-    "declarationDir": "./dist",
+    "strict": true,
+    "noUnusedLocals": true,
     "module": "es6",
     "noImplicitAny": true,
-    "outDir": "./dist",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "./build/esm/",
+    "outDir": "./build/esm/",
     "target": "es5",
     "declarationMap": true,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "sourceMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
     "lib": [
       "es2018",
       "dom",
-    ]
+    ],
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/tests"
   ],
 }

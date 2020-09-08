@@ -15,7 +15,7 @@ import {
     IDBIndexParameters
 } from './main-interface'
 
-function isIndexDbSupported() {
+export function isIndexDbSupported() {
     if (!window.indexedDB) {
         console.log("Your browser doesn't support a stable version of IndexedDB. some of the features will not be available.");
         return false
@@ -568,7 +568,7 @@ export function openDB(database_name: string, version: number, upgradeCallback?:
             } else {
                 // version number is ok
                 // open the database connection
-                const request = indexedDB.open(database_name, version)
+                const request = window.indexedDB.open(database_name, version)
                 // after onupgradeneeded this event will fire
                 request.onsuccess = (result: any) => {
                     resolve(new IDBDatabaseWrapper(result.target.result))
