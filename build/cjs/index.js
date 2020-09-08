@@ -16,20 +16,6 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise */
-
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-    return extendStatics(d, b);
-};
-
-function __extends(d, b) {
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
 
 function __awaiter(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -241,7 +227,8 @@ var IDBIndexWrapper = /** @class */ (function () {
                 reject(err + " - Error while opening cursor on indexed object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
-                resolve(new IDBCursorWithValueWrapper(event.target.result));
+                console.log(event.target.result.value, 'hhhhhhhhh');
+                resolve(new IDBCursorWrapper(event.target.result));
             };
         });
     };
@@ -297,6 +284,38 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
                 err.stopPropagation();
                 reject(err + " - Error while adding new data to object store called - " + _this.name);
             };
+        });
+    };
+    /**
+     * Add array of the data one at a time to Object Store
+     *
+     * @param value
+     * @returns primary_keys[]
+     */
+    IDBObjectStoreWrapper.prototype.addAll = function (value) {
+        return __awaiter(this, void 0, void 0, function () {
+            var inserted_primary_keys, index, item, primary_key;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        inserted_primary_keys = [];
+                        if (!(value.length !== 0)) return [3 /*break*/, 4];
+                        index = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(index < value.length)) return [3 /*break*/, 4];
+                        item = value[index];
+                        return [4 /*yield*/, this.add(item)];
+                    case 2:
+                        primary_key = _a.sent();
+                        inserted_primary_keys.push(primary_key);
+                        _a.label = 3;
+                    case 3:
+                        index++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, inserted_primary_keys];
+                }
+            });
         });
     };
     /**
@@ -453,15 +472,40 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
      * If successful, request's result will be an IDBCursorWithValue pointing at the first matching record, or null if there were no matching records. */
     IDBObjectStoreWrapper.prototype.openCursor = function (query, direction) {
         var _this = this;
+        var cursorWrapper = [];
         var request = this.IDBObjectStore.openCursor(query, direction);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
                 err.preventDefault();
                 err.stopPropagation();
-                reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
+                if (cursorWrapper.length === 0) {
+                    reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
+                }
+                else {
+                    // notify the observer
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    curWrapper.cursorMoved(null, err);
+                }
             };
             request.onsuccess = function (event) {
-                resolve(new IDBCursorWithValueWrapper(event.target.result));
+                var new_cursor = event.target.result;
+                if (cursorWrapper.length === 0) {
+                    // when no continue or advance is called
+                    cursorWrapper.push(new IDBCursorWrapper(new_cursor));
+                    resolve(cursorWrapper[cursorWrapper.length - 1]);
+                }
+                else {
+                    // when continue or advance is called this part will get called
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    if (new_cursor) {
+                        var insCursorWrapper = new IDBCursorWrapper(new_cursor);
+                        cursorWrapper.push(insCursorWrapper);
+                        curWrapper.cursorMoved(insCursorWrapper, null);
+                    }
+                    else {
+                        curWrapper.cursorMoved(null, null);
+                    }
+                }
             };
         });
     };
@@ -576,25 +620,53 @@ function openDB(database_name, version, upgradeCallback) {
 var IDBCursorWrapper = /** @class */ (function () {
     function IDBCursorWrapper(IDBCursor) {
         this.IDBCursor = IDBCursor;
+        this.cursor_movement_promise = {
+            resolve: function (value) { },
+            reject: function (err) { }
+        };
         this.direction = this.IDBCursor.direction;
         this.key = this.IDBCursor.key;
         this.primaryKey = this.IDBCursor.primaryKey;
         this.source = this.IDBCursor.source;
+        if (this.IDBCursor.value) {
+            this.value = this.IDBCursor.value;
+        }
+        else {
+            this.value = null;
+        }
     }
+    // when the cursor will move to next item this method will be called
+    IDBCursorWrapper.prototype.cursorMoved = function (IDBCursorWrapper, err) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                // there some one watching for this method
+                if (err) {
+                    this.cursor_movement_promise.reject(err);
+                }
+                else {
+                    if (IDBCursorWrapper) {
+                        this.cursor_movement_promise.resolve(IDBCursorWrapper);
+                    }
+                    else {
+                        this.cursor_movement_promise.resolve(null);
+                    }
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
     /**
      * Advances the cursor through the next count records in range.
      */
     IDBCursorWrapper.prototype.advance = function (count) {
         return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
-                try {
-                    this.IDBCursor.advance(count);
-                    return [2 /*return*/, new IDBCursorWrapper(this.IDBCursor)];
-                }
-                catch (error) {
-                    return [2 /*return*/, null];
-                }
-                return [2 /*return*/];
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.cursor_movement_promise.reject = reject;
+                        _this.cursor_movement_promise.resolve = resolve;
+                        _this.IDBCursor.advance(count);
+                    })];
             });
         });
     };
@@ -603,15 +675,13 @@ var IDBCursorWrapper = /** @class */ (function () {
      */
     IDBCursorWrapper.prototype.continue = function (key) {
         return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
-                try {
-                    this.IDBCursor.continue(key);
-                    return [2 /*return*/, new IDBCursorWrapper(this.IDBCursor)];
-                }
-                catch (error) {
-                    return [2 /*return*/, null];
-                }
-                return [2 /*return*/];
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.cursor_movement_promise.reject = reject;
+                        _this.cursor_movement_promise.resolve = resolve;
+                        _this.IDBCursor.continue(key);
+                    })];
             });
         });
     };
@@ -675,16 +745,6 @@ var IDBCursorWrapper = /** @class */ (function () {
     };
     return IDBCursorWrapper;
 }());
-var IDBCursorWithValueWrapper = /** @class */ (function (_super) {
-    __extends(IDBCursorWithValueWrapper, _super);
-    function IDBCursorWithValueWrapper(IDBCursorWithValue) {
-        var _this = _super.call(this, IDBCursorWithValue) || this;
-        _this.IDBCursorWithValue = IDBCursorWithValue;
-        _this.value = _this.IDBCursorWithValue.value;
-        return _this;
-    }
-    return IDBCursorWithValueWrapper;
-}(IDBCursorWrapper));
 
 exports.isIndexDbSupported = isIndexDbSupported;
 exports.openDB = openDB;

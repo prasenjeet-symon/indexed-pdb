@@ -1,4 +1,4 @@
-import { DOMException, ArrayBufferView, IDBKeyRange, DOMStringList, IDBTransactionMode, IDBArrayKey, IDBValidKey, IDBCursorWithValue, IDBCursor, IDBCursorDirection, IDBObjectStore, IDBTransaction, IDBObjectStoreParameters, IDBIndexParameters } from './main-interface';
+import { DOMException, ArrayBufferView, IDBKeyRange, DOMStringList, IDBTransactionMode, IDBArrayKey, IDBValidKey, IDBCursor, IDBCursorDirection, IDBObjectStore, IDBTransaction, IDBObjectStoreParameters, IDBIndexParameters } from './main-interface';
 export declare function isIndexDbSupported(): boolean;
 declare class IDBTransactionWrapper {
     private IDBTransaction;
@@ -66,7 +66,7 @@ declare class IDBIndexWrapper {
      *
      * If successful, request's result will be an IDBCursorWithValue, or null if there were no matching records.
      */
-    openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection): Promise<IDBCursorWithValueWrapper | null>;
+    openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection): Promise<IDBCursorWrapper | null>;
     /** Opens a cursor with key only flag set over the records matching query, ordered by direction. If query is null, all records in index are matched.
      *
      * If successful, request's result will be an IDBCursor, or null if there were no matching records. */
@@ -95,6 +95,13 @@ declare class IDBObjectStoreWrapper {
     If successful, request's result will be the record's key.
     */
     add(value: any, key?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | undefined, transactionCallback?: (transaction: IDBTransactionWrapper | null) => void): Promise<IDBValidKey>;
+    /**
+     * Add array of the data one at a time to Object Store
+     *
+     * @param value
+     * @returns primary_keys[]
+     */
+    addAll<T>(value: T[]): Promise<any[]>;
     /**
     Creates and immediately returns an IDBRequest object, and clears this object store in a separate thread. This is for deleting all current records out of an object store.
 
@@ -142,7 +149,7 @@ declare class IDBObjectStoreWrapper {
     /** Opens a cursor over the records matching query, ordered by direction. If query is null, all records in store are matched.
      *
      * If successful, request's result will be an IDBCursorWithValue pointing at the first matching record, or null if there were no matching records. */
-    openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection): Promise<IDBCursorWithValueWrapper | null>;
+    openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection): Promise<IDBCursorWrapper | null>;
     /** Opens a cursor with key only flag set over the records matching query, ordered by direction. If query is null, all records in store are matched.
      *
      * If successful, request's result will be an IDBCursor pointing at the first matching record, or null if there were no matching records. */
@@ -187,6 +194,11 @@ declare class IDBDatabaseWrapper {
 export declare function openDB(database_name: string, version: number, upgradeCallback?: (upgradeDb: IDBDatabaseWrapper) => void): Promise<IDBDatabaseWrapper>;
 declare class IDBCursorWrapper {
     private IDBCursor;
+    private cursor_movement_promise;
+    /**
+     * Returns the cursor's current value.
+     */
+    readonly value: any;
     /**
      * Returns the direction ("next", "nextunique", "prev" or "prevunique") of the cursor.
      */
@@ -204,14 +216,15 @@ declare class IDBCursorWrapper {
      */
     readonly source: IDBObjectStore | IDBIndex;
     constructor(IDBCursor: IDBCursor);
+    cursorMoved(IDBCursorWrapper: any, err: any): Promise<void>;
     /**
      * Advances the cursor through the next count records in range.
      */
-    advance(count: number): Promise<IDBCursorWrapper | null>;
+    advance(count: number): Promise<unknown>;
     /**
      * Advances the cursor to the next record in range.
      */
-    continue(key?: IDBValidKey): Promise<IDBCursorWrapper | null>;
+    continue(key?: IDBValidKey): Promise<IDBCursorWrapper>;
     /**
      * Advances the cursor to the next record in range matching or after key and primaryKey. Throws an "InvalidAccessError" DOMException if the source is not an index.
      */
@@ -236,14 +249,6 @@ declare class IDBCursorWrapper {
         IDBValidKey: any;
         IDBCursor: IDBCursorWrapper;
     }>;
-}
-declare class IDBCursorWithValueWrapper extends IDBCursorWrapper {
-    private IDBCursorWithValue;
-    /**
-     * Returns the cursor's current value.
-     */
-    readonly value: any;
-    constructor(IDBCursorWithValue: IDBCursorWithValue);
 }
 export {};
 //# sourceMappingURL=index.d.ts.map

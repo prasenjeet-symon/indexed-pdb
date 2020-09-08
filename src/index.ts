@@ -6,7 +6,6 @@ import {
     IDBTransactionMode,
     IDBArrayKey,
     IDBValidKey,
-    IDBCursorWithValue,
     IDBCursor,
     IDBCursorDirection,
     IDBObjectStore,
@@ -214,14 +213,15 @@ class IDBIndexWrapper {
      */
     public openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection) {
         const request = this.IDBIndex.openCursor(query, direction)
-        return new Promise<IDBCursorWithValueWrapper | null>((resolve, reject) => {
+        return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
                 err.preventDefault()
                 err.stopPropagation()
                 reject(`${err} - Error while opening cursor on indexed object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
-                resolve(new IDBCursorWithValueWrapper(event.target.result))
+                console.log(event.target.result.value, 'hhhhhhhhh')
+                resolve(new IDBCursorWrapper(event.target.result))
             }
         })
     }
@@ -246,6 +246,7 @@ class IDBIndexWrapper {
 }
 
 class IDBObjectStoreWrapper {
+    
     /** Returns a list of the names of indexes in the store.*/
     public readonly indexNames: DOMStringList
 
@@ -295,6 +296,28 @@ class IDBObjectStoreWrapper {
                 reject(`${err} - Error while adding new data to object store called - ${this.name}`)
             }
         })
+    }
+
+
+
+    /**
+     * Add array of the data one at a time to Object Store
+     * 
+     * @param value 
+     * @returns primary_keys[]
+     */
+    public async addAll<T>(value: T[]){
+        const inserted_primary_keys: any[] = []
+
+        if(value.length !== 0){
+            for(let index = 0; index < value.length; index++){
+                const item = value[index]
+                const primary_key = await this.add(item)
+                inserted_primary_keys.push(primary_key)
+            }
+        }
+
+        return inserted_primary_keys
     }
 
     /**
@@ -454,16 +477,40 @@ class IDBObjectStoreWrapper {
      * 
      * If successful, request's result will be an IDBCursorWithValue pointing at the first matching record, or null if there were no matching records. */
     public openCursor(query?: string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection) {
+        const cursorWrapper: any[] = []
         const request = this.IDBObjectStore.openCursor(query, direction)
-        return new Promise<IDBCursorWithValueWrapper | null>((resolve, reject) => {
+        return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
+
             request.onerror = (err) => {
                 err.preventDefault()
                 err.stopPropagation()
-                reject(`${err} - Error while opeing the cursor from the object store - ${this.name}`)
+                if(cursorWrapper.length === 0){
+                    reject(`${err} - Error while opeing the cursor from the object store - ${this.name}`)
+                }else{
+                    // notify the observer
+                    const curWrapper =  cursorWrapper[cursorWrapper.length - 1] as IDBCursorWrapper
+                    curWrapper.cursorMoved(null, err)
+                }
             }
 
             request.onsuccess = (event: any) => {
-                resolve(new IDBCursorWithValueWrapper(event.target.result))
+                const new_cursor = event.target.result
+                if (cursorWrapper.length === 0) {
+                    // when no continue or advance is called
+                    cursorWrapper.push(new IDBCursorWrapper(new_cursor))
+                    resolve(cursorWrapper[cursorWrapper.length - 1])
+                } else {
+                    // when continue or advance is called this part will get called
+                    const curWrapper = cursorWrapper[cursorWrapper.length - 1] as IDBCursorWrapper
+                    if (new_cursor) {
+                        const insCursorWrapper = new IDBCursorWrapper(new_cursor)
+                        cursorWrapper.push(insCursorWrapper)
+                        curWrapper.cursorMoved(insCursorWrapper, null)
+                    } else {
+                        curWrapper.cursorMoved(null, null)
+                    }
+
+                }
             }
         })
     }
@@ -592,6 +639,14 @@ export function openDB(database_name: string, version: number, upgradeCallback?:
 
 
 class IDBCursorWrapper {
+    private cursor_movement_promise = {
+        resolve: (value: any)=>{},
+        reject: ( err: any )=>{}
+    }
+    /**
+     * Returns the cursor's current value.
+     */
+    readonly value: any;
     /**
      * Returns the direction ("next", "nextunique", "prev" or "prevunique") of the cursor.
      */
@@ -614,30 +669,46 @@ class IDBCursorWrapper {
         this.key = this.IDBCursor.key
         this.primaryKey = this.IDBCursor.primaryKey
         this.source = this.IDBCursor.source
+        if((this.IDBCursor as any).value){
+            this.value = (this.IDBCursor as any).value
+        }else{
+            this.value = null
+        }
     }
 
+    // when the cursor will move to next item this method will be called
+    async cursorMoved(IDBCursorWrapper: any, err: any) {
+        // there some one watching for this method
+        if (err) {
+            this.cursor_movement_promise.reject(err)
+        } else {
+            if (IDBCursorWrapper) {
+                this.cursor_movement_promise.resolve(IDBCursorWrapper)
+            } else {
+                this.cursor_movement_promise.resolve(null)
+            }
+        }
+    }
     /**
      * Advances the cursor through the next count records in range.
      */
     async advance(count: number) {
-        try {
+        return new Promise((resolve, reject)=>{
+            this.cursor_movement_promise.reject = reject
+            this.cursor_movement_promise.resolve = resolve
             this.IDBCursor.advance(count)
-            return new IDBCursorWrapper(this.IDBCursor)
-        } catch (error) {
-            return null
-        }
+        })
     }
 
     /**
      * Advances the cursor to the next record in range.
      */
     async continue(key?: IDBValidKey) {
-        try {
+        return new Promise<IDBCursorWrapper>((resolve, reject)=>{
+            this.cursor_movement_promise.reject = reject
+            this.cursor_movement_promise.resolve = resolve
             this.IDBCursor.continue(key)
-            return new IDBCursorWrapper(this.IDBCursor)
-        } catch (error) {
-            return null
-        }
+        })
     }
 
     /**
@@ -688,17 +759,3 @@ class IDBCursorWrapper {
         })
     }
 }
-
-class IDBCursorWithValueWrapper extends IDBCursorWrapper {
-    /**
-     * Returns the cursor's current value.
-     */
-    readonly value: any;
-
-    constructor(private IDBCursorWithValue: IDBCursorWithValue) {
-        super(IDBCursorWithValue)
-        this.value = this.IDBCursorWithValue.value
-    }
-
-}
-
