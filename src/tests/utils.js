@@ -2,6 +2,7 @@ async function connect_to_database(database_name) {
     return ipdb.openDB(database_name, 1)
 }
 
+
 function create_new_table(database_name, table_name) {
     return new Promise((resolve, reject) => {
         ipdb.openDB(database_name, 2, function (upgradeDB) {
@@ -94,8 +95,8 @@ async function fetch_all_rows_using_cursor(database_name, table_name) {
     const tnx = database.transaction(table_name, 'readwrite')
     const test_object_store = tnx.objectStore(table_name)
     const all_rows = []
-    await test_object_store.openCursor().then(function get_item(cursor){
-        if(!cursor){
+    await test_object_store.openCursor().then(function get_item(cursor) {
+        if (!cursor) {
             console.log('null cursor')
             return
         }

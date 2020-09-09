@@ -47,7 +47,7 @@ describe('test the indexedDB database', () => {
 
     test('check the availability of the indexedDB', async () => {
         const result = await inner_page.evaluate(function () {
-            return ipdb.isIndexDbSupported()
+            return ipdb.isIndexedDBSupported()
         })
 
         expect(result).toBeTruthy()
@@ -149,8 +149,6 @@ describe('test the indexedDB database', () => {
                 { id: 6, name: 'Prasenjeet Symon', age: 17, gender: 'male' }
             ]
         )
-    }, 12000)
-
-
+    })
 })
 
