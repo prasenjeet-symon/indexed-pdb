@@ -97,7 +97,7 @@ async function fetch_all_rows_using_cursor(database_name, table_name) {
     const all_rows = []
     await test_object_store.openCursor().then(function get_item(cursor) {
         if (!cursor) {
-            console.log('null cursor')
+
             return
         }
         all_rows.push(cursor.value)

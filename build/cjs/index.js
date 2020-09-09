@@ -55,7 +55,7 @@ function __generator(thisArg, body) {
     }
 }
 
-function isIndexDbSupported() {
+function isIndexedDBSupported() {
     if (!window.indexedDB) {
         console.log("Your browser doesn't support a stable version of IndexedDB. some of the features will not be available.");
         return false;
@@ -219,16 +219,41 @@ var IDBIndexWrapper = /** @class */ (function () {
      */
     IDBIndexWrapper.prototype.openCursor = function (query, direction) {
         var _this = this;
+        var cursorWrapper = [];
         var request = this.IDBIndex.openCursor(query, direction);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
                 err.preventDefault();
                 err.stopPropagation();
-                reject(err + " - Error while opening cursor on indexed object store called - " + _this.name);
+                if (cursorWrapper.length === 0) {
+                    reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
+                }
+                else {
+                    // notify the observer
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    curWrapper.cursorMoved(null, err);
+                }
             };
             request.onsuccess = function (event) {
-                console.log(event.target.result.value, 'hhhhhhhhh');
-                resolve(new IDBCursorWrapper(event.target.result));
+                var new_cursor = event.target.result;
+                if (cursorWrapper.length === 0) {
+                    // when no continue or advance is called
+                    cursorWrapper.push(new IDBCursorWrapper(new_cursor));
+                    resolve(cursorWrapper[cursorWrapper.length - 1]);
+                }
+                else {
+                    // when continue or advance is called this part will get called
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    if (new_cursor) {
+                        var insCursorWrapper = new IDBCursorWrapper(new_cursor);
+                        curWrapper.cursorMoved(insCursorWrapper, null);
+                        cursorWrapper.push(insCursorWrapper);
+                    }
+                    else {
+                        // end of the cursor
+                        curWrapper.cursorMoved(null, null);
+                    }
+                }
             };
         });
     };
@@ -238,14 +263,40 @@ var IDBIndexWrapper = /** @class */ (function () {
     IDBIndexWrapper.prototype.openKeyCursor = function (query, direction) {
         var _this = this;
         var request = this.IDBIndex.openKeyCursor(query, direction);
+        var cursorWrapper = [];
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
                 err.preventDefault();
                 err.stopPropagation();
-                reject(err + " - Error while opening key cursor on indexed object store called - " + _this.name);
+                if (cursorWrapper.length === 0) {
+                    reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
+                }
+                else {
+                    // notify the observer
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    curWrapper.cursorMoved(null, err);
+                }
             };
             request.onsuccess = function (event) {
-                resolve(new IDBCursorWrapper(event.target.result));
+                var new_cursor = event.target.result;
+                if (cursorWrapper.length === 0) {
+                    // when no continue or advance is called
+                    cursorWrapper.push(new IDBCursorWrapper(new_cursor));
+                    resolve(cursorWrapper[cursorWrapper.length - 1]);
+                }
+                else {
+                    // when continue or advance is called this part will get called
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    if (new_cursor) {
+                        var insCursorWrapper = new IDBCursorWrapper(new_cursor);
+                        curWrapper.cursorMoved(insCursorWrapper, null);
+                        cursorWrapper.push(insCursorWrapper);
+                    }
+                    else {
+                        // end of the cursor
+                        curWrapper.cursorMoved(null, null);
+                    }
+                }
             };
         });
     };
@@ -499,10 +550,11 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
                     var curWrapper = cursorWrapper[cursorWrapper.length - 1];
                     if (new_cursor) {
                         var insCursorWrapper = new IDBCursorWrapper(new_cursor);
-                        cursorWrapper.push(insCursorWrapper);
                         curWrapper.cursorMoved(insCursorWrapper, null);
+                        cursorWrapper.push(insCursorWrapper);
                     }
                     else {
+                        // end of the cursor value is null
                         curWrapper.cursorMoved(null, null);
                     }
                 }
@@ -515,14 +567,40 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
     IDBObjectStoreWrapper.prototype.openKeyCursor = function (query, direction) {
         var _this = this;
         var request = this.IDBObjectStore.openKeyCursor(query, direction);
+        var cursorWrapper = [];
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
                 err.preventDefault();
                 err.stopPropagation();
-                reject(err + " - Error while opeing the key cursor from the object store - " + _this.name);
+                if (cursorWrapper.length === 0) {
+                    reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
+                }
+                else {
+                    // notify the observer
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    curWrapper.cursorMoved(null, err);
+                }
             };
             request.onsuccess = function (event) {
-                resolve(new IDBCursorWrapper(event.target.result));
+                var new_cursor = event.target.result;
+                if (cursorWrapper.length === 0) {
+                    // when no continue or advance is called
+                    cursorWrapper.push(new IDBCursorWrapper(new_cursor));
+                    resolve(cursorWrapper[cursorWrapper.length - 1]);
+                }
+                else {
+                    // when continue or advance is called this part will get called
+                    var curWrapper = cursorWrapper[cursorWrapper.length - 1];
+                    if (new_cursor) {
+                        var insCursorWrapper = new IDBCursorWrapper(new_cursor);
+                        curWrapper.cursorMoved(insCursorWrapper, null);
+                        cursorWrapper.push(insCursorWrapper);
+                    }
+                    else {
+                        // end of the cursor no item to continue
+                        curWrapper.cursorMoved(null, null);
+                    }
+                }
             };
         });
     };
@@ -589,7 +667,7 @@ var IDBDatabaseWrapper = /** @class */ (function () {
 /** Open the database connection to IndexDB */
 function openDB(database_name, version, upgradeCallback) {
     return new Promise(function (resolve, reject) {
-        if (isIndexDbSupported()) {
+        if (isIndexedDBSupported()) {
             if (is_number_float(version)) {
                 reject('Invalid Version Number | Only Integer is supported');
             }
@@ -690,15 +768,13 @@ var IDBCursorWrapper = /** @class */ (function () {
      */
     IDBCursorWrapper.prototype.continuePrimaryKey = function (key, primaryKey) {
         return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
-                try {
-                    this.IDBCursor.continuePrimaryKey(key, primaryKey);
-                    return [2 /*return*/, new IDBCursorWrapper(this.IDBCursor)];
-                }
-                catch (error) {
-                    return [2 /*return*/, null];
-                }
-                return [2 /*return*/];
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.cursor_movement_promise.reject = reject;
+                        _this.cursor_movement_promise.resolve = resolve;
+                        _this.IDBCursor.continuePrimaryKey(key, primaryKey);
+                    })];
             });
         });
     };
@@ -746,5 +822,5 @@ var IDBCursorWrapper = /** @class */ (function () {
     return IDBCursorWrapper;
 }());
 
-exports.isIndexDbSupported = isIndexDbSupported;
+exports.isIndexedDBSupported = isIndexedDBSupported;
 exports.openDB = openDB;

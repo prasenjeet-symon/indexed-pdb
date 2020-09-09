@@ -1,5 +1,5 @@
 import { DOMException, ArrayBufferView, IDBKeyRange, DOMStringList, IDBTransactionMode, IDBArrayKey, IDBValidKey, IDBCursor, IDBCursorDirection, IDBObjectStore, IDBTransaction, IDBObjectStoreParameters, IDBIndexParameters } from './main-interface';
-export declare function isIndexDbSupported(): boolean;
+export declare function isIndexedDBSupported(): boolean;
 declare class IDBTransactionWrapper {
     private IDBTransaction;
     /** Returns the transaction's connection. */
@@ -228,7 +228,7 @@ declare class IDBCursorWrapper {
     /**
      * Advances the cursor to the next record in range matching or after key and primaryKey. Throws an "InvalidAccessError" DOMException if the source is not an index.
      */
-    continuePrimaryKey(key: IDBValidKey, primaryKey: IDBValidKey): Promise<IDBCursorWrapper | null>;
+    continuePrimaryKey(key: IDBValidKey, primaryKey: IDBValidKey): Promise<IDBCursorWrapper>;
     /**
     * Delete the record pointed at by the cursor with a new value.
     *
