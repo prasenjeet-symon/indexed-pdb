@@ -146,19 +146,56 @@ This method opens a database, and returns a promise for an enhanced [`IDBDatabas
 
 ```
 
--`name`: Name of the database 
-- `version`: Schema version, or `undefined` to open the current version.
--`upgradeCallback` (optional): Called if this version of the database has never been opened before. Use it to specify the schema for the database. This is similar to the [`upgradeneeded` event](https://developer.mozilla.org/en-US/docs/Web/API/IDBOpenDBRequest/upgradeneeded_event) in plain IndexedDB.
-- `database`: An enhanced `IDBDatabase`. ( IDBDatabaseWrapper)
--`upgradeDB`: An enhanced `IDBDatabase`. Use this to create new object store on the upgraded database.
+- `name` : Name of the database 
+- `version` : Schema version, or `undefined` to open the current version.
+- `upgradeCallback` (optional) : Called if this version of the database has never been opened before. Use it to specify the schema for the database. This is similar to the [`upgradeneeded` event](https://developer.mozilla.org/en-US/docs/Web/API/IDBOpenDBRequest/upgradeneeded_event) in plain IndexedDB.
+- `database` : An enhanced `IDBDatabase`. ( IDBDatabaseWrapper)
+- `upgradeDB` : An enhanced `IDBDatabase`. Use this to create new object store on the upgraded database.
 
 ## `IDBDatabaseWrapper`
 
 A object returned from the openDB.
 
 ### Properties
-`IDBDatabase.name` - **Read only**
 
+`IDBDatabaseWrapper.name` - (**Read only**)
+
+
+A DOMString that contains the name of the connected database.
+
+
+`IDBDatabaseWrapper.version` - (**Read only**)
+
+
+A 64-bit integer that contains the version of the connected database. When a database is first created, this attribute is an empty string.
+
+
+`IDBDatabaseWrapper.objectStoreNames` - ( **Read only**)
+
+
+A DOMStringList that contains a list of the names of the object stores currently in the connected database.
+
+---
+
+### Methods
+
+
+`IDBDatabaseWrapper.close()`
+@return - `void`
+
+Returns immediately and closes the connection to a database in a separate thread.The connection is not actually closed until all transactions created using this connection are complete. No new transactions can be created for this connection once this method is called. Methods that create transactions throw an exception if a closing operation is pending.
+
+
+`IDBDatabaseWrapper.createObjectStore()` @return `IDBObjectStoreWrapper`
+
+Creates a new object store with the given name and options and returns a new `IDBObjectStoreWrapper`. Throws a `InvalidStateError` DOMException if not called within an upgrade transaction.
+
+
+`IDBDatabaseWrapper.deleteObjectStore(name)` @return `void`
+
+- `name` : Name of the object store to delete.
+
+Deletes the object store with the given name. Throws a "InvalidStateError" DOMException if not called within an upgrade transaction.
 
 
 
