@@ -198,5 +198,19 @@ Creates a new object store with the given name and options and returns a new `ID
 Deletes the object store with the given name. Throws a "InvalidStateError" DOMException if not called within an upgrade transaction.
 
 
+`IDBDatabaseWrapper.transaction(storeNames, mode)` @return `IDBTransactionWrapper`
+
+- `storeNames` : Array of store names to open the transaction on.
+- `mode ( optional)` :  Provide one of the value from  "readonly" | "readwrite" | "versionchange". If you want to just read data from `objectStore` then use "readonly" , If you want to insert new data to `objectStore` then use  "readwrite" and if you want to add new index or change index on the `objectStore` then use  "versionchange".
+
+Immediately returns a transaction object (IDBTransactionWrapper) containing the `IDBTransactionWrapper.objectStore` method, which you can use to access your object store. Runs in a separate thread.
+
+
+
+
+
+
+
+
 
 
