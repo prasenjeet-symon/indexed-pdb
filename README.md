@@ -206,6 +206,78 @@ Deletes the object store with the given name. Throws a "InvalidStateError" DOMEx
 Immediately returns a transaction object (IDBTransactionWrapper) containing the `IDBTransactionWrapper.objectStore` method, which you can use to access your object store. Runs in a separate thread.
 
 
+## `IDBObjectStoreWrapper`
+
+The IDBObjectStoreWrapper interface API represents an object store in a database. Records within an object store are sorted according to their keys. This sorting enables fast insertion, look-up, and ordered retrieval.
+
+### Properties
+
+`IDBObjectStoreWrapper.indexNames` - ( **Read only** )
+
+A list of the names of indexes on objects in object store.
+
+
+`IDBObjectStoreWrapper.keyPath` - ( **Read only** )
+
+The key path of object store. If this attribute is null, the application must provide a key for each modification operation.
+
+
+`IDBObjectStoreWrapper.name` - ( **Read only** )
+
+The name of object store.
+
+
+`IDBObjectStoreWrapper.transaction` - ( **Read only** )
+
+The IDBTransactionWrapper object to which this object store belongs.
+
+
+`IDBObjectStoreWrapper.autoIncrement` - ( **Read only** )
+
+Returns true if the store has a key generator, and false otherwise.
+
+---
+
+
+### Methods
+
+`IDBObjectStoreWrapper.add(value, key, transactionCallback(transaction){})` @return ` Promise<IDBValidKey>`
+
+- `value` : Value to add to object store
+- `key (optional)` :  Unique key for the value
+- `transactionCallback (optional)` : A callback to get the IDBTransactionWrapper
+    - `transaction` : The IDBTransactionWrapper object to which this object store belongs.
+
+Adds or updates a record in store with the given value and key. If the store uses in-line keys and key is specified a "DataError" DOMException will be thrown.
+
+If put() is used, any existing record with the key will be replaced. If add() is used, and if a record with the key already exists the request will fail, with request's error set to a "ConstraintError" DOMException.
+
+If successful, request's result will be the record's key.
+
+
+`IDBObjectStoreWrapper.addAll(value)` @return ` Promise<any[]> `
+
+- `value ` : Array of the value to add to object store.
+
+This method will only work if object store uses in-line keys. This method will add all the values of the array with single call. If successful, request's result will be the record's keys
+
+
+`IDBObjectStoreWrapper.clear()` @return ` Promise<"DONE"> `
+
+Use this method to delete all the records of the object store. If successful, request's result will be "DONE" string.
+
+
+`IDBObjectStoreWrapper.count(key)` @return ` Promise<"DONE"> `
+
+- `key` : key or IDBKeyRange of the value to retrive.
+
+Returns the total number of records that match the provided key or IDBKeyRange. If no arguments are provided, it returns the total number of records in the store.
+
+
+
+
+
+
 
 
 
