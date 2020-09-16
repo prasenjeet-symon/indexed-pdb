@@ -307,7 +307,7 @@ Deletes the index in store with the given name. Throws an "InvalidStateError" DO
 Retrieves the value of the first record matching the given key or key range in query. If successful, result will be the value, or undefined if there was no matching record.
 
 
-`IDBObjectStoreWrapper.getKey(query)`  @return `Promise<string | number | Date | ArrayBuffer | IDBArrayKey | ArrayBufferView | undefined>`
+> `IDBObjectStoreWrapper.getKey(query)`  @return `Promise<string | number | Date | ArrayBuffer | IDBArrayKey | ArrayBufferView | undefined>`
 
 - `query` : Key or range of the key 
  
