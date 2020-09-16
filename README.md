@@ -267,20 +267,51 @@ This method will only work if object store uses in-line keys. This method will a
 Use this method to delete all the records of the object store. If successful, request's result will be "DONE" string.
 
 
-`IDBObjectStoreWrapper.count(key)` @return ` Promise<"DONE"> `
+`IDBObjectStoreWrapper.count(key)` @return ` Promise<number> `
 
 - `key` : key or IDBKeyRange of the value to retrive.
 
 Returns the total number of records that match the provided key or IDBKeyRange. If no arguments are provided, it returns the total number of records in the store.
 
 
+`IDBObjectStoreWrapper.createIndex(name, keyPath, options)` @return `IDBIndexWrapper`
+
+- `name` : Name of index
+- `keyPath` : property or array of properties of the object on which to create the index. 
+- `options (optional)` : An object ` { multiEntry, unique }` that tells how to create the index on the object store. If your value can be duplicate then use `{ multiEntry: true }` or if you are sure that your value will be unique then use `{ unique: true }`
 
 
+Creates a new index in store with the given name, keyPath and options and returns a new IDBIndexWrapper. If the keyPath and options define constraints that cannot be satisfied with the data already in store the upgrade transaction will abort with a "ConstraintError" DOMException.
+
+Throws an "InvalidStateError" DOMException if not called within an upgrade transaction.
 
 
+`IDBObjectStoreWrapper.delete(key) ` @return `Promise<"OK">`
+
+- `key`: key or range of key on which to delete the values
+
+Deletes records in store with the given key or in the given key range in query. If successful, request's result will be "OK" string.
 
 
+`IDBObjectStoreWrapper.deleteIndex(name)` @return `void`
 
+- `name`: Name of index to delete.
+
+Deletes the index in store with the given name. Throws an "InvalidStateError" DOMException if not called within an upgrade transaction.
+
+
+`IDBObjectStoreWrapper.get(query)` @return `Promise<any>`
+
+- `query` : Key or range of the key 
+
+Retrieves the value of the first record matching the given key or key range in query. If successful, result will be the value, or undefined if there was no matching record.
+
+
+`IDBObjectStoreWrapper.getKey(query)`  @return `Promise<string | number | Date | ArrayBuffer | IDBArrayKey | ArrayBufferView | undefined>`
+
+- `query` : Key or range of the key 
+ 
+ Retrieves the key of the first record matching the given key or key range in query. If successful, result will be the key, or undefined if there was no matching record. Use this to check the existence of the key in object store.
 
 
 
