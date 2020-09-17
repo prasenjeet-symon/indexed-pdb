@@ -180,8 +180,7 @@ A DOMStringList that contains a list of the names of the object stores currently
 ### Methods
 
 
-`IDBDatabaseWrapper.close()`
-@return - `void`
+**`IDBDatabaseWrapper.close()`** @return - **`void`**
 
 Returns immediately and closes the connection to a database in a separate thread.The connection is not actually closed until all transactions created using this connection are complete. No new transactions can be created for this connection once this method is called. Methods that create transactions throw an exception if a closing operation is pending.
 
