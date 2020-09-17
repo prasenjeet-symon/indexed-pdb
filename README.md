@@ -185,24 +185,28 @@ A DOMStringList that contains a list of the names of the object stores currently
 Returns immediately and closes the connection to a database in a separate thread.The connection is not actually closed until all transactions created using this connection are complete. No new transactions can be created for this connection once this method is called. Methods that create transactions throw an exception if a closing operation is pending.
 
 
-`IDBDatabaseWrapper.createObjectStore()` @return `IDBObjectStoreWrapper`
+**`IDBDatabaseWrapper.createObjectStore()`** @return **`IDBObjectStoreWrapper`**
 
 Creates a new object store with the given name and options and returns a new `IDBObjectStoreWrapper`. Throws a `InvalidStateError` DOMException if not called within an upgrade transaction.
 
 
-`IDBDatabaseWrapper.deleteObjectStore(name)` @return `void`
+**`IDBDatabaseWrapper.deleteObjectStore(name)`** @return **`void`**
 
 - `name` : Name of the object store to delete.
 
 Deletes the object store with the given name. Throws a "InvalidStateError" DOMException if not called within an upgrade transaction.
 
 
-`IDBDatabaseWrapper.transaction(storeNames, mode)` @return `IDBTransactionWrapper`
+**`IDBDatabaseWrapper.transaction(storeNames, mode)`** @return **`IDBTransactionWrapper`**
 
 - `storeNames` : Array of store names to open the transaction on.
+
+
 - `mode ( optional)` :  Provide one of the value from  "readonly" | "readwrite" | "versionchange". If you want to just read data from `objectStore` then use "readonly" , If you want to insert new data to `objectStore` then use  "readwrite" and if you want to add new index or change index on the `objectStore` then use  "versionchange".
 
+
 Immediately returns a transaction object (IDBTransactionWrapper) containing the `IDBTransactionWrapper.objectStore` method, which you can use to access your object store. Runs in a separate thread.
+
 
 
 ## `IDBObjectStoreWrapper`
@@ -240,13 +244,19 @@ Returns true if the store has a key generator, and false otherwise.
 
 ### Methods
 
-`IDBObjectStoreWrapper.add(value, key, transactionCallback(transaction){})` @return ` Promise<IDBValidKey>`
+**`IDBObjectStoreWrapper.add(value, key, transactionCallback(transaction){})`** @return **` Promise<IDBValidKey>`**
 
 - `value` : Value to add to object store
+
+
 - `key (optional)` :  Unique key for the value
+
+
 - `transactionCallback (optional)` : A callback to get the IDBTransactionWrapper
     - `transaction` : The IDBTransactionWrapper object to which this object store belongs.
-
+    
+ 
+ 
 Adds or updates a record in store with the given value and key. If the store uses in-line keys and key is specified a "DataError" DOMException will be thrown.
 
 If put() is used, any existing record with the key will be replaced. If add() is used, and if a record with the key already exists the request will fail, with request's error set to a "ConstraintError" DOMException.
@@ -254,29 +264,39 @@ If put() is used, any existing record with the key will be replaced. If add() is
 If successful, request's result will be the record's key.
 
 
-`IDBObjectStoreWrapper.addAll(value)` @return ` Promise<any[]> `
+
+**`IDBObjectStoreWrapper.addAll(value)`** @return **` Promise<any[]> `**
 
 - `value ` : Array of the value to add to object store.
+
 
 This method will only work if object store uses in-line keys. This method will add all the values of the array with single call. If successful, request's result will be the record's keys
 
 
-`IDBObjectStoreWrapper.clear()` @return ` Promise<"DONE"> `
+
+**`IDBObjectStoreWrapper.clear()`** @return **`Promise<"DONE"> `**
 
 Use this method to delete all the records of the object store. If successful, request's result will be "DONE" string.
 
 
-`IDBObjectStoreWrapper.count(key)` @return ` Promise<number> `
+
+**`IDBObjectStoreWrapper.count(key)`** @return **` Promise<number> `**
 
 - `key` : key or IDBKeyRange of the value to retrive.
+
 
 Returns the total number of records that match the provided key or IDBKeyRange. If no arguments are provided, it returns the total number of records in the store.
 
 
-`IDBObjectStoreWrapper.createIndex(name, keyPath, options)` @return `IDBIndexWrapper`
+
+**`IDBObjectStoreWrapper.createIndex(name, keyPath, options)`** @return **`IDBIndexWrapper`**
 
 - `name` : Name of index
+
+
 - `keyPath` : property or array of properties of the object on which to create the index. 
+
+
 - `options (optional)` : An object ` { multiEntry, unique }` that tells how to create the index on the object store. If your value can be duplicate then use `{ multiEntry: true }` or if you are sure that your value will be unique then use `{ unique: true }`
 
 
@@ -285,34 +305,38 @@ Creates a new index in store with the given name, keyPath and options and return
 Throws an "InvalidStateError" DOMException if not called within an upgrade transaction.
 
 
-`IDBObjectStoreWrapper.delete(key) ` @return `Promise<"OK">`
+
+**`IDBObjectStoreWrapper.delete(key)`** @return  **`Promise<"OK">`**
 
 - `key`: key or range of key on which to delete the values
+
 
 Deletes records in store with the given key or in the given key range in query. If successful, request's result will be "OK" string.
 
 
-`IDBObjectStoreWrapper.deleteIndex(name)` @return `void`
+
+**`IDBObjectStoreWrapper.deleteIndex(name)`** @return **`void`**
 
 - `name`: Name of index to delete.
+
 
 Deletes the index in store with the given name. Throws an "InvalidStateError" DOMException if not called within an upgrade transaction.
 
 
-`IDBObjectStoreWrapper.get(query)` @return `Promise<any>`
+
+**`IDBObjectStoreWrapper.get(query)`** @return **`Promise<any>`**
 
 - `query` : Key or range of the key 
+
 
 Retrieves the value of the first record matching the given key or key range in query. If successful, result will be the value, or undefined if there was no matching record.
 
 
-> `IDBObjectStoreWrapper.getKey(query)`  @return `Promise<string | number | Date | ArrayBuffer | IDBArrayKey | ArrayBufferView | undefined>`
+
+**`IDBObjectStoreWrapper.getKey(query)`**  @return **`Promise<string | number | Date | ArrayBuffer | IDBArrayKey | ArrayBufferView | undefined>`**
 
 - `query` : Key or range of the key 
- 
- Retrieves the key of the first record matching the given key or key range in query. If successful, result will be the key, or undefined if there was no matching record. Use this to check the existence of the key in object store.
 
 
-
-
+Retrieves the key of the first record matching the given key or key range in query. If successful, result will be the key, or undefined if there was no matching record. Use this to check the existence of the key in object store.
 
