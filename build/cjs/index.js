@@ -77,28 +77,26 @@ function is_number_float(data) {
 }
 var IDBTransactionWrapper = /** @class */ (function () {
     function IDBTransactionWrapper(IDBTransaction) {
-        var _this = this;
         this.IDBTransaction = IDBTransaction;
         this.db = new IDBDatabaseWrapper(IDBTransaction.db);
         this.error = IDBTransaction.error;
         this.mode = IDBTransaction.mode;
         this.objectStoreNames = IDBTransaction.objectStoreNames;
-        this.event_abort = new Promise(function (resolve, reject) {
-            _this.IDBTransaction.onabort = function () {
-                resolve(true);
+    }
+    IDBTransactionWrapper.prototype.is_complete = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.IDBTransaction.onerror = function (err) {
+                reject(err);
             };
-        });
-        this.event_error = new Promise(function (resolve, reject) {
-            _this.IDBTransaction.onerror = function () {
-                resolve(true);
+            _this.IDBTransaction.onabort = function (err) {
+                reject(err);
             };
-        });
-        this.event_complete = new Promise(function (resolve, reject) {
             _this.IDBTransaction.oncomplete = function () {
                 resolve(true);
             };
         });
-    }
+    };
     /** Aborts the transaction. All pending requests will fail with a "AbortError" DOMException and all changes made to the database will be reverted. */
     IDBTransactionWrapper.prototype.abort = function () {
         return this.IDBTransaction.abort();
@@ -130,8 +128,6 @@ var IDBIndexWrapper = /** @class */ (function () {
                 resolve(event.target.result);
             };
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while counting number of record in indexed object store called - " + _this.name);
             };
         });
@@ -148,8 +144,6 @@ var IDBIndexWrapper = /** @class */ (function () {
         var request = this.IDBIndex.get(key);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while retriving  records in indexed object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -166,8 +160,6 @@ var IDBIndexWrapper = /** @class */ (function () {
         var request = this.IDBIndex.getKey(key);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while getting key in indexed object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -185,8 +177,6 @@ var IDBIndexWrapper = /** @class */ (function () {
         var request = this.IDBIndex.getAll(query, count);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while retriving all records in indexed object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -203,8 +193,6 @@ var IDBIndexWrapper = /** @class */ (function () {
         var request = this.IDBIndex.getAllKeys(query, count);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while retriving all keys in indexed object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -223,8 +211,6 @@ var IDBIndexWrapper = /** @class */ (function () {
         var request = this.IDBIndex.openCursor(query, direction);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 if (cursorWrapper.length === 0) {
                     reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
                 }
@@ -266,8 +252,6 @@ var IDBIndexWrapper = /** @class */ (function () {
         var cursorWrapper = [];
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 if (cursorWrapper.length === 0) {
                     reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
                 }
@@ -331,8 +315,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
                 resolve(result.target.result);
             };
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while adding new data to object store called - " + _this.name);
             };
         });
@@ -379,8 +361,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.clear();
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while clearing all the data from the object store called - " + _this.name);
             };
             request.onsuccess = function (result) {
@@ -403,8 +383,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.count(key);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while counting all record from the object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -428,8 +406,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.delete(key);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while deleting the row from the object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -453,8 +429,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.get(query);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while geting the row from the object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -470,8 +444,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.getKey(query);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while geting key from the object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -487,8 +459,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.getAll(query, count);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while geting all keys from the object store called - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -504,8 +474,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.getAllKeys(query, count);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while getting all keys from the object store - " + _this.name);
             };
             request.onsuccess = function (event) {
@@ -527,8 +495,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.openCursor(query, direction);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 if (cursorWrapper.length === 0) {
                     reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
                 }
@@ -570,8 +536,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var cursorWrapper = [];
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 if (cursorWrapper.length === 0) {
                     reject(err + " - Error while opeing the cursor from the object store - " + _this.name);
                 }
@@ -616,8 +580,6 @@ var IDBObjectStoreWrapper = /** @class */ (function () {
         var request = this.IDBObjectStore.put(value, key);
         return new Promise(function (resolve, reject) {
             request.onerror = function (err) {
-                err.preventDefault();
-                err.stopPropagation();
                 reject(err + " - Error while putting value to the object store - " + _this.name);
             };
             request.onsuccess = function (event) {

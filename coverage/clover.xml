@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1599626507732" clover="3.2.0">
-  <project timestamp="1599626507732" name="All files">
+<coverage generated="1600430290963" clover="3.2.0">
+  <project timestamp="1600430290963" name="All files">
     <metrics statements="58" coveredstatements="1" conditionals="14" coveredconditionals="0" methods="12" coveredmethods="0" elements="84" coveredelements="1" complexity="0" loc="58" ncloc="58" packages="1" files="1" classes="1"/>
     <file name="utils.js" path="C:\Users\Prasenjeet Symon\Desktop\lib\prasenjeet-symon\indexed-pdb\src\tests\utils.js">
       <metrics statements="58" coveredstatements="1" conditionals="14" coveredconditionals="0" methods="12" coveredmethods="0"/>

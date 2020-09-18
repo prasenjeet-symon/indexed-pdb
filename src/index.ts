@@ -48,28 +48,21 @@ class IDBTransactionWrapper {
     /** Returns a list of the names of object stores in the transaction's scope. For an upgrade transaction this is all object stores in the database. */
     public readonly objectStoreNames: DOMStringList
 
-    public readonly event_abort: Promise<boolean>
-    public readonly event_error: Promise<boolean>
-    public readonly event_complete: Promise<boolean>
-
     constructor(private IDBTransaction: IDBTransaction) {
         this.db = new IDBDatabaseWrapper(IDBTransaction.db)
         this.error = IDBTransaction.error
         this.mode = IDBTransaction.mode
         this.objectStoreNames = IDBTransaction.objectStoreNames
-        this.event_abort = new Promise<boolean>((resolve, reject) => {
-            this.IDBTransaction.onabort = () => {
-                resolve(true)
-            }
-        })
+    }
 
-        this.event_error = new Promise<boolean>((resolve, reject) => {
-            this.IDBTransaction.onerror = () => {
-                resolve(true)
+    is_complete() {
+        return new Promise((resolve, reject) => {
+            this.IDBTransaction.onerror = (err) => {
+                reject(err)
             }
-        })
-
-        this.event_complete = new Promise<boolean>((resolve, reject) => {
+            this.IDBTransaction.onabort = (err) => {
+                reject(err)
+            }
             this.IDBTransaction.oncomplete = () => {
                 resolve(true)
             }
@@ -123,8 +116,6 @@ class IDBIndexWrapper {
                 resolve(event.target.result)
             }
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while counting number of record in indexed object store called - ${this.name}`)
             }
         })
@@ -141,8 +132,6 @@ class IDBIndexWrapper {
         const request = this.IDBIndex.get(key)
         return new Promise<any>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while retriving  records in indexed object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -159,8 +148,6 @@ class IDBIndexWrapper {
         const request = this.IDBIndex.getKey(key)
         return new Promise<string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | undefined>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while getting key in indexed object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -178,8 +165,6 @@ class IDBIndexWrapper {
         const request = this.IDBIndex.getAll(query, count)
         return new Promise<any[]>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while retriving all records in indexed object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -196,8 +181,6 @@ class IDBIndexWrapper {
         const request = this.IDBIndex.getAllKeys(query, count)
         return new Promise<IDBValidKey[]>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while retriving all keys in indexed object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -216,8 +199,6 @@ class IDBIndexWrapper {
         const request = this.IDBIndex.openCursor(query, direction)
         return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 if (cursorWrapper.length === 0) {
                     reject(`${err} - Error while opeing the cursor from the object store - ${this.name}`)
                 } else {
@@ -257,8 +238,6 @@ class IDBIndexWrapper {
         const cursorWrapper: any[] = []
         return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 if (cursorWrapper.length === 0) {
                     reject(`${err} - Error while opeing the cursor from the object store - ${this.name}`)
                 } else {
@@ -338,8 +317,6 @@ class IDBObjectStoreWrapper {
             }
 
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while adding new data to object store called - ${this.name}`)
             }
         })
@@ -376,8 +353,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.clear()
         return new Promise<'DONE'>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while clearing all the data from the object store called - ${this.name}`)
             }
             request.onsuccess = (result: any | undefined) => {
@@ -399,8 +374,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.count(key)
         return new Promise<number>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while counting all record from the object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -425,8 +398,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.delete(key)
         return new Promise<'OK'>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while deleting the row from the object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -451,8 +422,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.get(query)
         return new Promise<any>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while geting the row from the object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -468,8 +437,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.getKey(query)
         return new Promise<string | number | Date | ArrayBufferView | ArrayBuffer | IDBArrayKey | undefined>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while geting key from the object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -485,8 +452,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.getAll(query, count)
         return new Promise<any[]>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while geting all keys from the object store called - ${this.name}`)
             }
             request.onsuccess = (event: any) => {
@@ -503,8 +468,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.getAllKeys(query, count)
         return new Promise<IDBValidKey[]>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while getting all keys from the object store - ${this.name}`)
             }
 
@@ -529,8 +492,6 @@ class IDBObjectStoreWrapper {
         return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
 
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 if (cursorWrapper.length === 0) {
                     reject(`${err} - Error while opeing the cursor from the object store - ${this.name}`)
                 } else {
@@ -573,8 +534,6 @@ class IDBObjectStoreWrapper {
         const cursorWrapper: any[] = []
         return new Promise<IDBCursorWrapper | null>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 if (cursorWrapper.length === 0) {
                     reject(`${err} - Error while opeing the cursor from the object store - ${this.name}`)
                 } else {
@@ -619,8 +578,6 @@ class IDBObjectStoreWrapper {
         const request = this.IDBObjectStore.put(value, key)
         return new Promise<IDBValidKey>((resolve, reject) => {
             request.onerror = (err) => {
-                err.preventDefault()
-                err.stopPropagation()
                 reject(`${err} - Error while putting value to the object store - ${this.name}`)
             }
 

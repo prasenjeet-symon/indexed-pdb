@@ -10,10 +10,8 @@ declare class IDBTransactionWrapper {
     readonly mode: IDBTransactionMode;
     /** Returns a list of the names of object stores in the transaction's scope. For an upgrade transaction this is all object stores in the database. */
     readonly objectStoreNames: DOMStringList;
-    readonly event_abort: Promise<boolean>;
-    readonly event_error: Promise<boolean>;
-    readonly event_complete: Promise<boolean>;
     constructor(IDBTransaction: IDBTransaction);
+    is_complete(): Promise<unknown>;
     /** Aborts the transaction. All pending requests will fail with a "AbortError" DOMException and all changes made to the database will be reverted. */
     abort(): void;
     /** Returns an IDBObjectStore in the transaction's scope. */
