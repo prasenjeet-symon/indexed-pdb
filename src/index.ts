@@ -661,7 +661,7 @@ export function openDB(database_name: string, version: number, upgradeCallback?:
                 }
             }
         } else {
-            reject('Not supported browser')
+            reject('Browser not supported ')
         }
     })
 }
