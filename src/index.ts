@@ -635,29 +635,31 @@ class IDBDatabaseWrapper {
 
 
 /** Open the database connection to IndexDB */
-export function openDB(database_name: string, version: number, upgradeCallback?: (upgradeDb: IDBDatabaseWrapper) => void) {
+export function openDB(database_name: string, version?: number, upgradeCallback?: (upgradeDb: IDBDatabaseWrapper) => void) {
     return new Promise<IDBDatabaseWrapper>((resolve, reject) => {
         if (isIndexedDBSupported()) {
-            if (is_number_float(version)) {
-                reject('Invalid Version Number | Only Integer is supported')
-            } else {
-                // version number is ok
-                // open the database connection
-                const request = window.indexedDB.open(database_name, version)
-                // after onupgradeneeded this event will fire
-                request.onsuccess = (result: any) => {
-                    resolve(new IDBDatabaseWrapper(result.target.result))
+            if (version) {
+                if (is_number_float(version)) {
+                    reject('Invalid Version Number | Only Integer is supported')
                 }
+            }
 
-                request.onerror = (err) => {
-                    reject(`${err} - Error while connecting to database`)
-                }
+            // version number is ok
+            // open the database connection
+            const request = window.indexedDB.open(database_name, version)
+            // after onupgradeneeded this event will fire
+            request.onsuccess = (result: any) => {
+                resolve(new IDBDatabaseWrapper(result.target.result))
+            }
 
-                // after completion of this event and callback onSuccess will be called
-                request.onupgradeneeded = (result: any) => {
-                    if (upgradeCallback) {
-                        upgradeCallback(new IDBDatabaseWrapper(result.target.result))
-                    }
+            request.onerror = (err) => {
+                reject(`${err} - Error while connecting to database`)
+            }
+
+            // after completion of this event and callback onSuccess will be called
+            request.onupgradeneeded = (result: any) => {
+                if (upgradeCallback) {
+                    upgradeCallback(new IDBDatabaseWrapper(result.target.result))
                 }
             }
         } else {

@@ -189,7 +189,7 @@ declare class IDBDatabaseWrapper {
     transaction(storeNames: string | string[], mode?: IDBTransactionMode): IDBTransactionWrapper;
 }
 /** Open the database connection to IndexDB */
-export declare function openDB(database_name: string, version: number, upgradeCallback?: (upgradeDb: IDBDatabaseWrapper) => void): Promise<IDBDatabaseWrapper>;
+export declare function openDB(database_name: string, version?: number, upgradeCallback?: (upgradeDb: IDBDatabaseWrapper) => void): Promise<IDBDatabaseWrapper>;
 declare class IDBCursorWrapper {
     private IDBCursor;
     private cursor_movement_promise;

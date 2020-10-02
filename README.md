@@ -119,7 +119,7 @@ After installing it from the npm registry just import it into your working proje
 
 ```js
 
-<script src="https://unpkg.com/indexed-pdb@1.0.10/build/iife/index-min.js"></script>
+<script src="https://unpkg.com/indexed-pdb@1.1.1/build/iife/index-min.js"></script>
 <script>
   async function doDatabaseStuff() {
     const db = await ipdb.openDB(…);

@@ -626,30 +626,30 @@ var IDBDatabaseWrapper = /** @class */ (function () {
 function openDB(database_name, version, upgradeCallback) {
     return new Promise(function (resolve, reject) {
         if (isIndexedDBSupported()) {
-            if (is_number_float(version)) {
-                reject('Invalid Version Number | Only Integer is supported');
+            if (version) {
+                if (is_number_float(version)) {
+                    reject('Invalid Version Number | Only Integer is supported');
+                }
             }
-            else {
-                // version number is ok
-                // open the database connection
-                var request = window.indexedDB.open(database_name, version);
-                // after onupgradeneeded this event will fire
-                request.onsuccess = function (result) {
-                    resolve(new IDBDatabaseWrapper(result.target.result));
-                };
-                request.onerror = function (err) {
-                    reject(err + " - Error while connecting to database");
-                };
-                // after completion of this event and callback onSuccess will be called
-                request.onupgradeneeded = function (result) {
-                    if (upgradeCallback) {
-                        upgradeCallback(new IDBDatabaseWrapper(result.target.result));
-                    }
-                };
-            }
+            // version number is ok
+            // open the database connection
+            var request = window.indexedDB.open(database_name, version);
+            // after onupgradeneeded this event will fire
+            request.onsuccess = function (result) {
+                resolve(new IDBDatabaseWrapper(result.target.result));
+            };
+            request.onerror = function (err) {
+                reject(err + " - Error while connecting to database");
+            };
+            // after completion of this event and callback onSuccess will be called
+            request.onupgradeneeded = function (result) {
+                if (upgradeCallback) {
+                    upgradeCallback(new IDBDatabaseWrapper(result.target.result));
+                }
+            };
         }
         else {
-            reject('Not supported browser');
+            reject('Browser not supported ');
         }
     });
 }
